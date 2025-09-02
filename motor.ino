@@ -15,8 +15,8 @@ char teclas[FILAS][COLUMNAS] = {
   {'*','0','#','D'}
 };
 
-byte pinesFilas[FILAS] = {9,8,7,6};   
-byte pinesColumnas[COLUMNAS] = {13,12,11,10};
+byte pinesFilas[FILAS] = {13,12,11,10};   
+byte pinesColumnas[COLUMNAS] = {9,8,7,6};
 
 Keypad teclado = Keypad(makeKeymap(teclas), pinesFilas, pinesColumnas, FILAS, COLUMNAS);
 
@@ -29,7 +29,10 @@ int pinMotorB1 = 4;
 int pinMotorB2 = 5;
 
 void setup() {
-  lcd.init();
+  Serial.begin(9600);
+  Serial.println("Iniciando sistema...");
+
+  lcd.init();         // si no funciona, cambiar por lcd.begin(16,2);
   lcd.backlight();
   lcd.setCursor(0,0);
   lcd.print("Iniciando...");
@@ -47,6 +50,7 @@ void setup() {
 
   delay(1000);
   lcd.clear();
+  Serial.println("Sistema listo.");
 }
 
 void loop() {
@@ -58,35 +62,45 @@ void loop() {
   char tecla = teclado.getKey();
 
   if(tecla){
+    Serial.print("Tecla presionada: ");
+    Serial.println(tecla);
+
     lcd.clear();
     switch(tecla){
       case '1':
         lcd.print("Motor A/B?");
+        Serial.println("Selecciona motor a encender.");
         esperaMotor(true);
         break;
 
       case '2':
         lcd.print("Motor A/B?");
+        Serial.println("Selecciona motor a apagar.");
         esperaMotor(false);
         break;
 
       case '3':
         lcd.print("Avanzar A/B?");
-        esperaGiro(true); // horario
+        Serial.println("Selecciona motor para avanzar.");
+        esperaGiro(true);
         break;
 
       case '4':
         lcd.print("Retroceder A/B?");
-        esperaGiro(false); // antihorario
+        Serial.println("Selecciona motor para retroceder.");
+        esperaGiro(false);
         break;
 
       default:
+        Serial.println("Tecla no asignada.");
         break;
     }
   }
 }
 
 void encenderMotor(char motor){
+  Serial.print("Encendiendo motor ");
+  Serial.println(motor);
   if(motor=='A'){
     digitalWrite(enable0, HIGH);
   }else if(motor=='B'){
@@ -95,6 +109,8 @@ void encenderMotor(char motor){
 }
 
 void apagarMotor(char motor){
+  Serial.print("Apagando motor ");
+  Serial.println(motor);
   if(motor=='A'){
     digitalWrite(enable0, LOW);
     detenerMotor('A');
@@ -104,8 +120,10 @@ void apagarMotor(char motor){
   }
 }
 
-void avanzarMotor(char motor){ // horario
-  if(motor=='A'){
+void avanzarMotor(char motor){
+  Serial.print("Avanzar motor ");
+  Serial.println(motor);
+  if(motor=='A'){ //pin 1 HIGH, 2 low
     digitalWrite(pinMotorA1, HIGH);
     digitalWrite(pinMotorA2, LOW);
     encenderMotor('A');
@@ -116,7 +134,9 @@ void avanzarMotor(char motor){ // horario
   }
 }
 
-void retroMotor(char motor){ // antihorario
+void retroMotor(char motor){
+  Serial.print("Retroceder motor ");
+  Serial.println(motor);
   if(motor=='A'){
     digitalWrite(pinMotorA1, LOW);
     digitalWrite(pinMotorA2, HIGH);
@@ -129,6 +149,8 @@ void retroMotor(char motor){ // antihorario
 }
 
 void detenerMotor(char motor){
+  Serial.print("Detener motor ");
+  Serial.println(motor);
   if(motor=='A'){
     digitalWrite(pinMotorA1, LOW);
     digitalWrite(pinMotorA2, LOW);
@@ -147,6 +169,7 @@ void esperaMotor(bool encender){
       else apagarMotor('A');
       lcd.clear();
       lcd.print("Motor A listo");
+      Serial.println("Accion ejecutada en Motor A.");
       delay(1000);
     }
     else if(tecla=='B'){
@@ -154,6 +177,7 @@ void esperaMotor(bool encender){
       else apagarMotor('B');
       lcd.clear();
       lcd.print("Motor B listo");
+      Serial.println("Accion ejecutada en Motor B.");
       delay(1000);
     }
   }
@@ -168,6 +192,7 @@ void esperaGiro(bool horario){
       else retroMotor('A');
       lcd.clear();
       lcd.print("Motor A girando");
+      Serial.println("Motor A en movimiento.");
       delay(1000);
     }
     else if(tecla=='B'){
@@ -175,6 +200,7 @@ void esperaGiro(bool horario){
       else retroMotor('B');
       lcd.clear();
       lcd.print("Motor B girando");
+      Serial.println("Motor B en movimiento.");
       delay(1000);
     }
   }
